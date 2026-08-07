@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+._*
+
+# Build output — the store package is generated, not committed
+*.zip
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Obsidian vault metadata (this project lives inside a vault)
+.obsidian/
+
+# Working notes — not for the public repo
+CLAUDE.md
+STORE-LISTING.md
