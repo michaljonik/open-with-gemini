@@ -13,7 +13,10 @@ No copying the URL. No opening the page first. No switching tabs to paste.
 - **Toolbar icon** → sends the page you're currently on
 - **Custom prompt template**, editable in the extension options; use `{url}` as the
   placeholder for the link
-- **Never auto-submits** — the prompt is filled in and waits for you to press Enter
+- **You decide when it sends** — by default the prompt is filled in and waits for you
+  to press Enter; an optional *Send automatically* setting submits it for you
+
+![The "Open with Gemini" entry in the right-click menu on a link](store-assets/screenshot-1280x800.png)
 
 ## Install (development)
 
@@ -41,6 +44,17 @@ What are the main arguments in this article? {url}
 Templates are stored in `chrome.storage.sync`, so they follow your signed-in Chrome
 profile.
 
+### Send automatically (experimental)
+
+The same options page has a **Send automatically** checkbox, off by default. With it
+on, the extension submits the prompt instead of leaving it for you to send.
+
+It's marked experimental for a reason: submitting means simulating an Enter keypress
+on Gemini's input, and falling back to clicking the Send button if that doesn't take.
+Both depend on Google's page internals and can break when the interface changes. When
+that happens the extension degrades quietly — the prompt is still typed into the box,
+you just press Enter yourself, exactly as with the setting off.
+
 ## How it works
 
 Gemini has no URL parameter for pre-filling a prompt, so the extension does it with a
@@ -52,6 +66,9 @@ content script scoped to `gemini.google.com`:
 3. `content.js` runs on that page, reads the pending prompt, waits for Gemini's input
    field to render (`MutationObserver` — it's an SPA, the field isn't there on load),
    and types the text in using native input events.
+4. If *Send automatically* is on, it waits for the Send button to become enabled,
+   dispatches an Enter keydown/keyup, and a second later checks whether the input
+   cleared. If the text is still sitting there, it clicks the Send button instead.
 
 Two non-obvious details worth knowing before you touch the code:
 
@@ -63,6 +80,17 @@ Two non-obvious details worth knowing before you touch the code:
   `setAccessLevel({accessLevel: "TRUSTED_AND_UNTRUSTED_CONTEXTS"})` from the service
   worker — and it **resets on every browser restart**, so it's called in both
   `onInstalled` and `onStartup`.
+- The Send button stays disabled until Angular registers the injected text, and until
+  then Gemini ignores a synthetic Enter too. So auto-send waits for that button to flip
+  to enabled *before* trying anything — the same Enter that does nothing immediately
+  after typing works fine a moment later.
+- Don't identify the Send button by `aria-label`: it's localised (it reads "Wyślij
+  wiadomość" in Polish). The stable hook is its Material icon,
+  `mat-icon[fonticon="arrow_upward"]`, which is the same in every language.
+- Never click a Send button reference you resolved earlier. Once the reply starts
+  streaming, Angular turns that same DOM node into the Stop button — clicking the
+  stale reference aborts the message you just sent. The fallback re-resolves by icon,
+  so a button that has become Stop simply doesn't match.
 
 ## Permissions
 
@@ -70,7 +98,7 @@ Two non-obvious details worth knowing before you touch the code:
 |---|---|
 | `contextMenus` | Adds the right-click menu entry |
 | `activeTab` | Reads the current tab's URL when you click the toolbar icon (narrower than `tabs` — only on explicit click) |
-| `storage` | Saves your prompt template; passes the pending prompt to the Gemini tab |
+| `storage` | Saves your prompt template and auto-send preference; passes the pending prompt to the Gemini tab |
 | `https://gemini.google.com/*` | Types the prompt into Gemini's input field |
 
 No access to other sites. No remote code. No analytics. See [PRIVACY.md](PRIVACY.md).
@@ -87,11 +115,10 @@ extension that breaks on Google's schedule, not mine.
 `chrome://extensions` — the session storage access level needs the service worker to
 have run `onInstalled`/`onStartup`.
 
-## Publishing
-
-See [STORE-LISTING.md](STORE-LISTING.md) for the Chrome Web Store submission
-material — listing copy, permission justifications, privacy disclosures, and a
-pre-submit checklist.
+**The prompt is typed in but not sent, with *Send automatically* on.** Google changed
+either the key handling or the Send button markup. The prompt is still there, so
+nothing is lost — press Enter. To fix it properly, check `trySend()` and
+`waitForSendButton()` in `content.js`.
 
 ## License
 

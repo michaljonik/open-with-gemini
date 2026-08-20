@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>YT → Gemini — Settings</title>
+  <title>Open with Gemini — Settings</title>
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -22,8 +22,29 @@
       padding: 0.5rem;
     }
     .hint { color: #5f6368; font-size: 0.85rem; margin-top: 0.3rem; }
+    .tag {
+      display: inline-block;
+      margin-left: 0.4rem;
+      padding: 0.1rem 0.4rem;
+      background: #fef7e0;
+      color: #b06000;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      vertical-align: middle;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+    .checkbox-row input { margin-top: 0.2rem; }
+    .checkbox-row label { margin-top: 0; }
     button {
-      margin-top: 1rem;
+      margin-top: 1.5rem;
       padding: 0.5rem 1.2rem;
       background: #4285f4;
       color: white;
@@ -37,11 +58,22 @@
   </style>
 </head>
 <body>
-  <h1>YT → Gemini — Prompt template</h1>
+  <h1>Open with Gemini — Settings</h1>
 
   <label for="promptTemplate">Prompt sent to Gemini</label>
   <textarea id="promptTemplate"></textarea>
-  <p class="hint">Must include <code>{url}</code> — it gets replaced with the video link.</p>
+  <p class="hint">Must include <code>{url}</code> — it gets replaced with the link.</p>
+
+  <div class="checkbox-row">
+    <input type="checkbox" id="autoSend" />
+    <label for="autoSend">Send automatically <span class="tag">Experimental</span></label>
+  </div>
+  <p class="hint">
+    Submits the prompt as soon as it's filled in, instead of waiting for you to press
+    Enter. This relies on Gemini's page internals and may stop working when Google
+    changes their interface — if that happens, the prompt is simply left in the input
+    box for you to send manually.
+  </p>
 
   <button id="save">Save</button>
   <span id="status"></span>

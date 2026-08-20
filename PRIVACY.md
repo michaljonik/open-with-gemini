@@ -1,6 +1,6 @@
 # Privacy Policy — Open with Gemini
 
-**Last updated:** 7 August 2026
+**Last updated:** 10 August 2026
 
 ## Summary
 
@@ -21,8 +21,11 @@ icon on the current page), the extension:
 4. Types the resulting text into Gemini's prompt field, where it waits for you to
    review and press Enter.
 
-The extension never submits the prompt automatically. You are always the one who
-sends it.
+By default the extension does not submit the prompt — you review it and press Enter
+yourself. An optional "Send automatically" setting (off unless you turn it on) makes
+the extension submit the prompt for you by simulating the Enter key. Either way, the
+extension only ever sends the prompt built from the link you chose; it does not read
+Gemini's replies or anything else on the page.
 
 ## Data handled
 
@@ -30,6 +33,7 @@ sends it.
 |---|---|---|
 | The URL you right-click (or your current tab's URL) | Inserted into the prompt template | Held briefly in `chrome.storage.session` (browser memory, cleared immediately after use and on browser close), then typed into the Gemini page in your browser |
 | Your prompt template | Read to build the prompt | Stored in `chrome.storage.sync` — Chrome's own storage, synced across your signed-in Chrome profiles by Google. Never transmitted to the developer. |
+| Your "Send automatically" preference | Read to decide whether to submit the prompt | Stored in `chrome.storage.sync`, same as above. Never transmitted to the developer. |
 
 **No browsing history is collected.** The extension only ever sees the single URL
 you explicitly right-click, at the moment you right-click it. It does not observe,
@@ -47,7 +51,7 @@ governed by [Google's own privacy policy](https://policies.google.com/privacy).
 |---|---|
 | `contextMenus` | To add the "Open with Gemini" entry to the right-click menu. |
 | `activeTab` | To read the current tab's URL when you click the toolbar icon. Grants access only to the tab you're on, only at the moment you click. |
-| `storage` | To save your prompt template and to briefly pass the pending prompt from the background script to the Gemini tab. |
+| `storage` | To save your prompt template and "Send automatically" preference, and to briefly pass the pending prompt from the background script to the Gemini tab. |
 | Host access to `https://gemini.google.com/*` | To type the prompt into Gemini's input field. This is the only site the extension can touch. |
 
 The extension does **not** request access to all websites. It cannot read or modify
